@@ -1,28 +1,21 @@
 import { ImageResponse } from "next/og";
-import { getPostBySlug } from "@/lib/posts";
 
-export const runtime = "nodejs";
 export const alt = "HQ Creator post";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default async function Image({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  let title = "HQ Creator";
-  let category = "Ledger";
-  let author = "HQ Creator";
+// Turns "best-invoicing-tools-for-solo-creators" into
+// "Best Invoicing Tools For Solo Creators" — no filesystem access needed,
+// so this is safe to bundle for either the edge or nodejs runtime.
+function titleFromSlug(slug: string) {
+  return slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
-  try {
-    const post = await getPostBySlug(params.slug);
-    title = post.title;
-    category = post.category;
-    author = post.author;
-  } catch {
-    // fall back to defaults above if the post can't be loaded
-  }
+export default function Image({ params }: { params: { slug: string } }) {
+  const title = titleFromSlug(params.slug);
 
   return new ImageResponse(
     (
@@ -49,7 +42,7 @@ export default async function Image({
             alignSelf: "flex-start",
           }}
         >
-          {category}
+          HQ Creator
         </div>
 
         <div
@@ -67,15 +60,12 @@ export default async function Image({
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
             fontSize: 24,
             letterSpacing: 2,
             color: "#22221F",
           }}
         >
-          <div style={{ display: "flex" }}>HQ CREATOR</div>
-          <div style={{ display: "flex", opacity: 0.6 }}>By {author}</div>
+          HQ CREATOR
         </div>
       </div>
     ),
